@@ -1,0 +1,26 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-helloworld-gke
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "labels"  . | indent 4  }}
+  template:
+    metadata:
+      labels:
+        {{- include "labels"  . | indent 4 }}
+    spec:
+      containers:
+      - name: {{ .Values.application.name }}
+        # Replace $LOCATION with your Artifact Registry location (e.g., us-west1).
+        # Replace $GCLOUD_PROJECT with your project ID.
+        image: {{ .Values.application.image }}:{{ .Values.application.tag }}
+        # This app listens on port 8080 for web traffic by default.
+        ports:
+        - containerPort: {{ .Values.application.containerPort }}
+        envFrom:
+          - configMapRef: 
+             name:  {{ .Release.Name }}-configmap
